@@ -138,6 +138,7 @@ object_type =
     <|> keyw "streamid" ARMSID_T
     <|> keyw "contextbank" ARMCB_T
     <|> keyw "arm_sgi_signal" ARMSGISignal_T
+    <|> keyw "smc" ARMSMC_T
 
 obj_bit_size :: MapParser ObjParam
 obj_bit_size = do

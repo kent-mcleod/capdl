@@ -119,6 +119,7 @@ data Cap
         | ARMSIDCap        { capObj :: ObjID }
         | ARMCBCap         { capObj :: ObjID }
         | ARMSGISignalCap  { capObj :: ObjID }
+        | ARMSMCCap         { capObj :: ObjID }
 
         -- X86 specific caps
         | IOPortsCap {
@@ -213,6 +214,8 @@ data KernelObject a
     | ARMSID
     | ARMCB { bankNumber :: Maybe Word }
 
+    | ARMSMC
+
 -- X86 specific objects
     | IOPorts { ports :: (Word, Word) }
     | IODevice {
@@ -254,6 +257,7 @@ data KOType
     | ARMSID_T
     | ARMCB_T
     | ARMSGISignal_T
+    | ARMSMC_T
     | ASIDPool_T
     | PT_T
     | PD_T

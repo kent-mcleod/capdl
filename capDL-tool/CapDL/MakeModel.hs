@@ -493,6 +493,7 @@ objectOf n obj =
         Obj ARMSID_T [] [] -> ARMSID
         Obj ARMCB_T ps [] -> ARMCB (getCBExtraInfo ps)
         Obj ARMSGISignal_T ps [] -> ARMSGISignal (getSGISignalIrqs n ps) (getARMSGISignalTargets n ps)
+        Obj ARMSMC_T [] [] -> ARMSMC
         Obj _ _ (_:_) ->
           error $ "Only untyped caps can have objects as content: " ++
                   n ++ " = " ++ show obj
@@ -670,6 +671,7 @@ objCapOf containerName obj objRef params =
         ARMSID {} -> ARMSIDCap objRef
         ARMCB {} -> ARMCBCap objRef
         ARMSGISignal {} -> ARMSGISignalCap objRef
+        ARMSMC {} -> ARMSMCCap objRef
     else error ("Incorrect params for cap to " ++ printID objRef ++ " in " ++
                 printID containerName ++ "; got " ++ show params)
 
