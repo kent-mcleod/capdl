@@ -19,7 +19,7 @@ from .Object import Frame, PageTable, PageDirectory, CNode, Endpoint, \
     Notification, TCB, Untyped, IOPageTable, Object, IRQ, IOPorts, IODevice, \
     ARMIODevice, VCPU, ASIDPool, SC, SchedControl, RTReply, ObjectType, \
     ObjectRights, IOAPICIRQ, MSIIRQ, IRQControl, get_object_size, ASIDControl, \
-    DomainControl, is_aligned, ARMIRQMode, ARMIRQ, ContextBank, StreamID, ARMSGISignal
+    DomainControl, is_aligned, ARMIRQMode, ARMIRQ, ContextBank, StreamID, ARMSGISignal, SMC
 from capdl.util import ctz
 from .Spec import Spec
 
@@ -172,6 +172,8 @@ class ObjectAllocator(object):
             o = StreamID(name)
         elif type == ObjectType.seL4_ARMCB:
             o = ContextBank(name)
+        elif type == ObjectType.seL4_ARMSMC:
+            o = SMC(name)
         else:
             raise Exception('Invalid object type %s' % type)
         self.spec.add_object(o)
