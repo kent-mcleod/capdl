@@ -86,6 +86,9 @@ typedef enum {
 #if CONFIG_MAX_NUM_NODES == 1
     CDL_SGISignalCap,
 #endif
+#ifdef CONFIG_ALLOW_SMC_CALLS
+    CDL_SMCCap,
+#endif
 #endif
 #if defined(CONFIG_ARM_HYPERVISOR_SUPPORT) || defined(CONFIG_VTX)
     CDL_VCPUCap,
@@ -213,6 +216,9 @@ typedef enum {
     CDL_CB = seL4_ObjectTypeCount + 13,
 #if CONFIG_MAX_NUM_NODES == 1
     CDL_SGISignal,
+#endif
+#ifdef CONFIG_ALLOW_SMC_CALLS
+    CDL_SMC = seL4_ObjectTypeCount,
 #endif
 #endif
 #ifdef CONFIG_ARCH_RISCV
