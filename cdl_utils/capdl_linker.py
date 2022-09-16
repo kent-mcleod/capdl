@@ -40,7 +40,7 @@ def manifest(cap_symbols, region_symbols, architecture, targets):
             ccspace.write(data)
 
 
-def final_spec(args, obj_space, cspaces, addr_spaces, targets, architecture):
+def final_spec(args, render_state, targets, architecture):
     """
     Generates a final CapDL spec file that can be given to a capdl loader application
     """
@@ -49,6 +49,10 @@ def final_spec(args, obj_space, cspaces, addr_spaces, targets, architecture):
     for e, key in targets:
         name = os.path.basename(e)
         elf = ELF(e, name, architecture)
+        allocator_state = render_state.nodes[render_state.label_node_map[key]]
+        obj_space = allocator_state.obj_space
+        cspaces = allocator_state.cspaces
+        addr_spaces = allocator_state.addr_spaces
         cspace = cspaces[key]
 
         # Avoid inferring a TCB as we've already created our own.
@@ -69,7 +73,7 @@ def final_spec(args, obj_space, cspaces, addr_spaces, targets, architecture):
                 if not args.fprovide_tcb_caps:
                     del cspace.cnode[slot]
         cspace.cnode.finalise_size(arch=arch)
-    return obj_space
+    return render_state
 
 
 def main():
@@ -86,7 +90,8 @@ def main():
     parser_a.add_argument('--manifest-in', type=argparse.FileType('rb'))
     parser_a.add_argument('--elffile', nargs='+', action='append')
     parser_b = subparsers.add_parser('gen_cdl')
-    parser_b.add_argument('--outfile', type=argparse.FileType('w'))
+    parser_b.add_argument('--outfile', nargs='+', type=argparse.FileType('w'), action='append')
+    parser_b.add_argument('--outfile-key', nargs='+', action='append')
     parser_b.set_defaults(which="gen_cdl")
     parser_b.add_argument('--manifest-in', type=argparse.FileType('rb'))
     parser_b.add_argument('--elffile', nargs='+', action='append')
@@ -121,27 +126,35 @@ def main():
         if args.static_alloc and not args.untyped:
             parser.error('--static-alloc requires --untyped')
 
-        allocator_state = pickle.load(args.manifest_in)
+        outfiles = [item for sublist in args.outfile for item in sublist]
+        outfile_keys = [item for sublist in args.outfile_key for item in sublist]
+        outfile_dict = {}
+        for (outfile, outfile_key) in zip(outfiles, outfile_keys):
+            outfile_dict[outfile_key] = outfile
+
+        import pdb
+        # pdb.set_trace()
+        render_state = pickle.load(args.manifest_in)
         elfs = [item for sublist in args.elffile for item in sublist]
         keys = [item for sublist in args.keys for item in sublist]
         targets = zip(elfs, keys)
-        obj_space = final_spec(args, allocator_state.obj_space, allocator_state.cspaces,
-                               allocator_state.addr_spaces, targets, args.architecture)
+        render_state = final_spec(args, render_state, targets, args.architecture)
 
-        # Calculate final layout for objects and ASID slots...
-        ASIDTableAllocator().allocate(obj_space.spec)
-        if args.static_alloc:
-            alloc = BestFitAllocator()
-            for ut in yaml.load(args.untyped, Loader=yaml.FullLoader):
-                if len(ut):
-                    is_device, paddr, size_bits = ut['device'], ut['paddr'], ut['size_bits']
-                    alloc.add_untyped(Untyped("root_untyped_0x%x" % paddr,
-                                              size_bits=size_bits, paddr=paddr), is_device)
-            alloc.allocate(obj_space.spec)
+        for (node_id, allocator_state) in render_state.nodes.items():
+            # Calculate final layout for objects and ASID slots...
+            ASIDTableAllocator().allocate(allocator_state.obj_space.spec)
+            if args.static_alloc:
+                alloc = BestFitAllocator()
+                for ut in yaml.load(args.untyped, Loader=yaml.FullLoader):
+                    if len(ut):
+                        is_device, paddr, size_bits = ut['device'], ut['paddr'], ut['size_bits']
+                        alloc.add_untyped(Untyped("root_untyped_0x%x" % paddr,
+                                                  size_bits=size_bits, paddr=paddr), is_device)
+                alloc.allocate(allocator_state.obj_space.spec)
 
-        args.outfile.write(repr(obj_space.spec))
+            outfile_dict[node_id].write(repr(allocator_state.obj_space.spec))
         if args.save_object_state:
-            pickle.dump(allocator_state, args.save_object_state)
+            pickle.dump(render_state, args.save_object_state)
 
     return 0
 

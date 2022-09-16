@@ -7,7 +7,7 @@
 cmake_minimum_required(VERSION 3.7.2)
 
 function(BuildCapDLApplication)
-    cmake_parse_arguments(PARSE_ARGV 0 CAPDL_BUILD_APP "" "C_SPEC;OUTPUT" "ELF;DEPENDS")
+    cmake_parse_arguments(PARSE_ARGV 0 CAPDL_BUILD_APP "" "C_SPEC;OUTPUT;PLATFORM_YAML" "ELF;DEPENDS")
     if(NOT "${CAPDL_BUILD_APP_UNPARSED_ARGUMENTS}" STREQUAL "")
         message(FATAL_ERROR "Unknown arguments to BuildCapDLApplication")
     endif()
@@ -27,7 +27,7 @@ function(BuildCapDLApplication)
         _capdl_archive
     )
 
-    if(DEFINED platform_yaml)
+    if(DEFINED CAPDL_BUILD_APP_PLATFORM_YAML)
 
         find_file(PLATFORM_SIFT platform_sift.py PATHS ${CMAKE_MODULE_PATH} NO_CMAKE_FIND_ROOT_PATH)
         mark_as_advanced(FORCE PLATFORM_SIFT)
@@ -39,17 +39,19 @@ function(BuildCapDLApplication)
         endif()
 
         set(
-            MEMORY_REGIONS
-            "${CMAKE_BINARY_DIR}/capdl/capdl-loader-app/gen_config/capdl_loader_app/platform_info.h"
+            MEMORY_REGIONS_PATH ${CMAKE_CURRENT_BINARY_DIR}/yaml_${CAPDL_BUILD_APP_OUTPUT}/gen_config/)
+        set(MEMORY_REGIONS "${MEMORY_REGIONS_PATH}/capdl_loader_app/platform_info.h"
         )
         add_custom_command(
-            COMMAND ${PLATFORM_SIFT} --emit-c-syntax ${platform_yaml} > ${MEMORY_REGIONS}
+            COMMAND mkdir -p "${MEMORY_REGIONS_PATH}/capdl_loader_app"
+            COMMAND ${PLATFORM_SIFT} --emit-c-syntax ${CAPDL_BUILD_APP_PLATFORM_YAML} > ${MEMORY_REGIONS}
             OUTPUT ${MEMORY_REGIONS}
+            DEPENDS ${CAPDL_BUILD_APP_DEPENDS}
         )
-        add_custom_target(mem_regions DEPENDS ${platform_yaml} ${PLATFORM_SIFT} ${MEMORY_REGIONS})
+        add_custom_target(${CAPDL_BUILD_APP_OUTPUT}.mem_regions DEPENDS ${PLATFORM_SIFT} ${MEMORY_REGIONS} ${CAPDL_BUILD_APP_DEPENDS})
         set_property(
             SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/capdl/capdl-loader-app/src/main.c
-            PROPERTY OBJECT_DEPENDS mem_regions
+            PROPERTY OBJECT_DEPENDS ${CAPDL_BUILD_APP_OUTPUT}.mem_regions
         )
     endif()
 
@@ -64,7 +66,10 @@ function(BuildCapDLApplication)
     )
 
     if(DEFINED platform_yaml)
-        add_dependencies("${CAPDL_BUILD_APP_OUTPUT}" mem_regions)
+        add_dependencies("${CAPDL_BUILD_APP_OUTPUT}" ${CAPDL_BUILD_APP_OUTPUT}.mem_regions)
+        target_include_directories(
+            "${CAPDL_BUILD_APP_OUTPUT}"
+            PRIVATE ${MEMORY_REGIONS_PATH})
     endif()
 
     add_dependencies("${CAPDL_BUILD_APP_OUTPUT}" ${CAPDL_BUILD_APP_DEPENDS})
