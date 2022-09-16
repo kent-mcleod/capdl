@@ -216,6 +216,7 @@ prettyObjParams obj = case obj of
     ARMSID {} -> text "streamid"
     ARMCB {} -> text "contextbank"
     ARMSMC {} -> text "smc"
+    ARMSGISignal {} -> text "arm_sgi_signal"
 
 capParams [] = empty
 capParams xs = parens (hsep $ punctuate comma xs)

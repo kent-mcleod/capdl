@@ -120,6 +120,7 @@ showObjectName ARMIrq {} = "ARMIrq"
 showObjectName ARMSID {} = "ARMSID"
 showObjectName ARMCB {} = "ARMCB"
 showObjectName ARMSMC = "ARMSMC"
+showObjectName ARMSGISignal {} = "ARMSGISignal"
 
 --
 -- Get a cap's name.
@@ -160,6 +161,7 @@ showCapName SchedControlCap {} = "SchedControlCap"
 showCapName ARMSIDCap {} = "ARMSIDCap"
 showCapName ARMCBCap {} = "ARMCBCap"
 showCapName ARMSMCCap {} = "ARMSMCCap"
+showCapName ARMSGISignalCap {} = "ARMSGISignalCap"
 
 showExtraCapAttributes :: Cap -> [(String, String)]
 showExtraCapAttributes (EndpointCap _ capBadge _) = [("badge", show capBadge)]

@@ -162,6 +162,8 @@ showCap objs (ARMSMCCap id badge) _ is_orig _ =
     "{.type = CDL_SMCCap, .obj_id = " ++ showObjID objs id ++
     ", .is_orig = " ++ is_orig ++
     ", .data = { .tag = CDL_CapData_Badge, .badge = " ++ show badge ++ "}}"
+showCap objs (ARMSGISignalCap id) _ is_orig _ =
+    "{.type = CDL_SGISignalCap, .obj_id = " ++ showObjID objs id ++ ", .is_orig = " ++ is_orig ++ "}"
 
 showCap objs (PTCap id _) _ is_orig _ =
     "{.type = CDL_PTCap, .obj_id = " ++ showObjID objs id ++
@@ -385,6 +387,12 @@ showObjectFields _ _ (RTReply {}) _ _ _ = ".type = CDL_RTReply,"
 showObjectFields _ _ (ARMSID {}) _ _ _ = ".type = CDL_SID,"
 showObjectFields _ _ (ARMCB {}) _ _ _ = ".type = CDL_CB,"
 showObjectFields _ _ ARMSMC _ _ _ = ".type = CDL_SMC,"
+showObjectFields _ _ (ARMSGISignal irq targets) _ _ _ =
+    ".type = CDL_SGISignal," +++
+    ".sgisignal_extra = {" +++
+        ".irq = " ++ show irq ++ "," +++
+        ".targets = " ++ show targets ++ "," +++
+    "},"
 showObjectFields _ _ x _ _ _ = assert False $
     "UNSUPPORTED OBJECT TYPE: " ++ show x
 

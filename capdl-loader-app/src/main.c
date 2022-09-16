@@ -663,6 +663,15 @@ unsigned int create_object(CDL_Model *spec, CDL_Object *obj, CDL_ObjID id, seL4_
     }
 #endif
 
+#if defined(CONFIG_ARCH_ARM) && CONFIG_MAX_NUM_NODES == 1
+    if (CDL_Obj_Type(obj) == CDL_SGISignal) {
+        err = seL4_IRQControl_IssueSGISignal(seL4_CapIRQControl, obj->sgisignal_extra.irq, obj->sgisignal_extra.targets,
+            seL4_CapInitThreadCNode, free_slot, CONFIG_WORD_SIZE);
+        ZF_LOGF_IF(err != seL4_NoError, "Failed to allocate SGISignal cap");
+        return seL4_NoError;
+    }
+#endif
+
 #ifdef CONFIG_ALLOW_SMC_CALLS
     if (CDL_Obj_Type(obj) == CDL_SMC) {
         return seL4_NoError;

@@ -83,6 +83,9 @@ typedef enum {
     CDL_ARMIOSpaceCap,
     CDL_SIDCap,
     CDL_CBCap,
+#if CONFIG_MAX_NUM_NODES == 1
+    CDL_SGISignalCap,
+#endif
 #ifdef CONFIG_ALLOW_SMC_CALLS
     CDL_SMCCap,
 #endif
@@ -216,6 +219,9 @@ typedef enum {
 #ifdef CONFIG_ALLOW_SMC_CALLS
     CDL_SMC = seL4_ObjectTypeCount + 14,
 #endif
+#if CONFIG_MAX_NUM_NODES == 1
+    CDL_SGISignal = seL4_ObjectTypeCount + 15,
+#endif
 #endif
 #ifdef CONFIG_ARCH_RISCV
     CDL_Frame = seL4_RISCV_4K_Page,
@@ -310,6 +316,12 @@ typedef struct {
     int target;
 } CDL_ARMIRQExtraInfo;
 
+typedef struct {
+    seL4_Word irq;
+    seL4_Word targets;
+} CDL_SGISignalExtraInfo;
+
+
 typedef enum {
     CDL_FrameFill_None = 0,
     CDL_FrameFill_BootInfo,
@@ -367,6 +379,7 @@ typedef struct {
         CDL_FrameExtraInfo frame_extra;
         seL4_Word paddr; /* Physical address; only relevant for untyped objects. */
         seL4_Word asid_high; /* for ASID pools */
+        CDL_SGISignalExtraInfo sgisignal_extra;
         struct {
             seL4_Word start;
             seL4_Word end;

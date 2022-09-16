@@ -92,6 +92,14 @@ data ARMIRQExtraParam =
         target_core :: Word }
     deriving (Show, Eq, Ord, Typeable, Data)
 
+data ARMSGISignalExtraParam =
+    ARMSGISignalIrq {
+        sgi_irq :: Word }
+  | ARMSGISignalTargets {
+        sgi_targets :: Word }
+    deriving (Show, Eq, Ord, Typeable, Data)
+
+
 data ObjParam =
     BitSize {
       bits :: Word }
@@ -115,6 +123,8 @@ data ObjParam =
       msi_irq_extraParam :: MSIIRQExtraParam }
   | ARMIRQExtraParam {
       arm_irq_extraParam :: ARMIRQExtraParam }
+  | ARMSGISignalExtraParam {
+      arm_sgi_signal_extraParam :: ARMSGISignalExtraParam }
   | InitArguments {
       arguments :: [Word] }
   | DomainID {
