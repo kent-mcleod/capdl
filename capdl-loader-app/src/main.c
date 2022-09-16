@@ -33,7 +33,7 @@
 #include "capdl_spec.h"
 
 #ifdef CONFIG_ARCH_ARM
-#include <capdl_loader_app/platform_info.h>
+// #include <capdl_loader_app/platform_info.h>
 #endif
 
 #ifdef CONFIG_ARCH_RISCV
@@ -1513,7 +1513,7 @@ static void map_page(CDL_Model *spec UNUSED, CDL_Cap *page_cap, CDL_ObjID pd_id,
         assert(size_bits <= sizeof(uintptr_t) * CHAR_BIT - 1 && "illegal object size");
 
         seL4_ARCH_Page_GetAddress_t addr = seL4_ARCH_Page_GetAddress(sel4_page);
-        if (addr.paddr >= memory_region[0].start && addr.paddr <= memory_region[0].end) {
+        // if (addr.paddr >= memory_region[0].start && addr.paddr <= memory_region[0].end) {
             if (!(vm_attribs & seL4_ARM_PageCacheable) && CDL_Obj_Paddr(&spec->objects[page]) == 0) {
                 error = seL4_ARM_Page_CleanInvalidate_Data(sel4_page, 0, BIT(size_bits));
                 ZF_LOGF_IFERR(error, "");
@@ -1523,7 +1523,7 @@ static void map_page(CDL_Model *spec UNUSED, CDL_Cap *page_cap, CDL_ObjID pd_id,
                 error = seL4_ARM_Page_Unify_Instruction(sel4_page, 0, BIT(size_bits));
                 ZF_LOGF_IFERR(error, "");
             }
-        }
+        // }
 #endif
     } else {
         ZF_LOGF("attempt to map something that is not a frame or PT");

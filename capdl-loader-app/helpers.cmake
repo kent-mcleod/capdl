@@ -46,10 +46,10 @@ function(BuildCapDLApplication)
             COMMAND ${PLATFORM_SIFT} --emit-c-syntax ${platform_yaml} > ${MEMORY_REGIONS}
             OUTPUT ${MEMORY_REGIONS}
         )
-        add_custom_target(mem_regions DEPENDS ${platform_yaml} ${PLATFORM_SIFT} ${MEMORY_REGIONS})
+        # add_custom_target(mem_regions DEPENDS ${platform_yaml} ${PLATFORM_SIFT} ${MEMORY_REGIONS})
         set_property(
             SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/capdl/capdl-loader-app/src/main.c
-            PROPERTY OBJECT_DEPENDS mem_regions
+            PROPERTY OBJECT_DEPENDS ${MEMORY_REGIONS}#mem_regions
         )
     endif()
 
@@ -64,7 +64,7 @@ function(BuildCapDLApplication)
     )
 
     if(DEFINED platform_yaml)
-        add_dependencies("${CAPDL_BUILD_APP_OUTPUT}" mem_regions)
+        # add_dependencies("${CAPDL_BUILD_APP_OUTPUT}" mem_regions)
     endif()
 
     add_dependencies("${CAPDL_BUILD_APP_OUTPUT}" ${CAPDL_BUILD_APP_DEPENDS})
