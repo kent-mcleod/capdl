@@ -137,6 +137,7 @@ object_type =
     <|> keyw "rtreply" RTReply_T
     <|> keyw "streamid" ARMSID_T
     <|> keyw "contextbank" ARMCB_T
+    <|> keyw "arm_sgi_signal" ARMSGISignal_T
 
 obj_bit_size :: MapParser ObjParam
 obj_bit_size = do
@@ -403,6 +404,25 @@ arm_irq_extra_param = do
             <|> arm_irq_target)
     return $ ARMIRQExtraParam param
 
+arm_sgi_signal_irqs :: MapParser ARMSGISignalExtraParam
+arm_sgi_signal_irqs = do
+    reserved "irqs"
+    colon
+    n <- number
+    return $ ARMSGISignalIrqs n
+
+arm_sgi_signal_targets :: MapParser ARMSGISignalExtraParam
+arm_sgi_signal_targets = do
+    reserved "targets"
+    colon
+    n <- number
+    return $ ARMSGISignalTargets n
+
+arm_sgi_signal_extra_param :: MapParser ObjParam
+arm_sgi_signal_extra_param = do
+    param <-   (arm_sgi_signal_irqs
+            <|> arm_sgi_signal_targets)
+    return $ ARMSGISignalExtraParam param
 
 fill_param :: MapParser FrameExtraParam
 fill_param = do
@@ -458,6 +478,7 @@ object_param =
     <|> ports_param
     <|> asid_high_param
     <|> cb_extra_param
+    <|> arm_sgi_signal_extra_param
 
 object_params :: MapParser [ObjParam]
 object_params =

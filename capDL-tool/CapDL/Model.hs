@@ -118,6 +118,7 @@ data Cap
         | ARMIRQHandlerCap { capObj :: ObjID }
         | ARMSIDCap        { capObj :: ObjID }
         | ARMCBCap         { capObj :: ObjID }
+        | ARMSGISignalCap  { capObj :: ObjID }
 
         -- X86 specific caps
         | IOPortsCap {
@@ -204,6 +205,9 @@ data KernelObject a
         slots :: CapMap a,
         trigger :: Word,
         target :: Word }
+    | ARMSGISignal {
+        irqs :: Word,
+        targets :: Word }
 
 -- fake kernel objects for smmu
     | ARMSID
@@ -249,6 +253,7 @@ data KOType
     | ARMIrqSlot_T
     | ARMSID_T
     | ARMCB_T
+    | ARMSGISignal_T
     | ASIDPool_T
     | PT_T
     | PD_T

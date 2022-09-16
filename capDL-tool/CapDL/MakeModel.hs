@@ -339,6 +339,17 @@ getARMIrqTarget n [] = error ("Incorrect Arm irq parameters: missing 'target': "
 getARMIrqTarget _ (ARMIRQExtraParam (ARMIRQTarget target) : _) = target
 getARMIrqTarget n (_ : xs) = getARMIrqTarget n xs
 
+getSGISignalIrqs :: Name -> [ObjParam] -> Word
+getSGISignalIrqs n [] = error ("Incorrect Arm sgi_signal parameters: missing 'irqs': " ++ n)
+getSGISignalIrqs _ (ARMSGISignalExtraParam (ARMSGISignalIrqs irqs) : _) = irqs
+getSGISignalIrqs n (_ : xs) = getSGISignalIrqs n xs
+
+getARMSGISignalTargets :: Name -> [ObjParam] -> Word
+getARMSGISignalTargets n [] = error ("Incorrect Arm irq parameters: missing 'target': " ++ n)
+getARMSGISignalTargets _ (ARMSGISignalExtraParam (ARMSGISignalTargets targets) : _) = targets
+getARMSGISignalTargets n (_ : xs) = getARMSGISignalTargets n xs
+
+
 getMaybeBitSize :: [ObjParam] -> Maybe Word
 getMaybeBitSize [] = Nothing
 getMaybeBitSize (BitSize x : _) = Just x
@@ -437,6 +448,8 @@ validObjPars (Obj ARMIrqSlot_T ps []) =
   subsetConstrs ps (replicate (numConstrs (ARMIRQTrigger undefined)) (ARMIRQExtraParam undefined))
 validObjPars (Obj ARMCB_T ps []) =
   subsetConstrs ps (replicate (numConstrs (CBNumber undefined)) (CBExtraParam undefined))
+validObjPars (Obj ARMSGISignal_T ps []) =
+  subsetConstrs ps (replicate (numConstrs (ARMSGISignalIrqs undefined)) (ARMSGISignalExtraParam undefined))
 validObjPars obj = null (params obj)
 
 -- For converting frame sizes to size bits
@@ -479,6 +492,7 @@ objectOf n obj =
         Obj RTReply_T [] [] -> RTReply
         Obj ARMSID_T [] [] -> ARMSID
         Obj ARMCB_T ps [] -> ARMCB (getCBExtraInfo ps)
+        Obj ARMSGISignal_T ps [] -> ARMSGISignal (getSGISignalIrqs n ps) (getARMSGISignalTargets n ps)
         Obj _ _ (_:_) ->
           error $ "Only untyped caps can have objects as content: " ++
                   n ++ " = " ++ show obj
@@ -655,6 +669,7 @@ objCapOf containerName obj objRef params =
         ARMIrq {} -> ARMIRQHandlerCap objRef
         ARMSID {} -> ARMSIDCap objRef
         ARMCB {} -> ARMCBCap objRef
+        ARMSGISignal {} -> ARMSGISignalCap objRef
     else error ("Incorrect params for cap to " ++ printID objRef ++ " in " ++
                 printID containerName ++ "; got " ++ show params)
 
