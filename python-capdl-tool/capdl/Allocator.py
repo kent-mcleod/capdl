@@ -32,7 +32,7 @@ class AllocatorState(object):
         self.addr_spaces = addr_spaces
 
 
-class RenderState(AllocatorState):
+class RenderState(object):
     '''
     This bolts extra CAmkES state onto the capDL allocator state.
     For now, this just tracks extra adjustments to the integrity
@@ -42,9 +42,11 @@ class RenderState(AllocatorState):
     doesn't seem to like deserialising locally defined classes.
     '''
 
-    def __init__(self, *args, **kwargs):
-        super(RenderState, self).__init__(*args, **kwargs)
+    def __init__(self):
         self.policy_extra = set()
+        self.nodes = {}
+        self.label_node_map = {}
+        self.global_obj_space = {}
 
 
 class ObjectAllocator(object):
