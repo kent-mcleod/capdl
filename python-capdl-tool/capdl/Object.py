@@ -106,6 +106,9 @@ class ObjectType(Enum):
     # Only used by ASIDTableAllocator. Note: this counts slots, not bytes.
     seL4_ASID_Table = auto()
 
+    seL4_ARM_SGI_Signal = auto()
+
+
 
 class ObjectRights(Flag):
     _order_ = 'seL4_NoRights seL4_CanRead seL4_CanWrite seL4_CanGrant seL4_CanGrantReply seL4_AllRights'
@@ -561,6 +564,17 @@ class ARMIRQ(IRQ):
 
     def __repr__(self):
         return '%s = arm_irq (trigger:%s, target:%d)' % (self.name, "level" if self.trigger == ARMIRQMode.seL4_ARM_IRQ_LEVEL else "edge", self.target)
+
+class ARMSGISignal(Object):
+    def __init__(self, name, irq=0, targets=0):
+        super(ARMSGISignal, self).__init__(name)
+        self.irq = irq
+        self.targets = targets
+    def get_size_bits(self):
+        return None
+
+    def __repr__(self):
+        return '%s = arm_sgi_signal (irq:%s, targets:%s)' % (self.name, hex(self.irq), hex(self.targets))
 
 
 class VCPU(Object):
